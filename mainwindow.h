@@ -5,7 +5,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include <QtWidgets/QPushButton>
 
 enum class Action
 {
@@ -44,5 +44,6 @@ private:
     bool m_IsOperation = false;
     QString m_CurrentNumber;
     std::vector<Operation> m_Operations;
+    std::vector<QPushButton*> m_Buttons;
 };
 #endif // MAINWINDOW_H

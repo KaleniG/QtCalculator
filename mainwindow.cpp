@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent)
 {
     m_UI->setupUi(this);
 
+    m_Buttons.push_back(m_UI->Cancel);
     QObject::connect(m_UI->Num0, &QPushButton::clicked, [&]()
     {
         m_IsOperation = false;
