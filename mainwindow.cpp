@@ -1,4 +1,8 @@
 #include <cmath>
+#include <algorithm>
+#include <random>
+
+#include <QPropertyAnimation>
 
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
@@ -9,7 +13,30 @@ MainWindow::MainWindow(QWidget *parent)
 {
     m_UI->setupUi(this);
 
+
     m_Buttons.push_back(m_UI->Cancel);
+    m_Buttons.push_back(m_UI->Delete);
+    m_Buttons.push_back(m_UI->Equals);
+    m_Buttons.push_back(m_UI->Fun);
+    m_Buttons.push_back(m_UI->Num0);
+    m_Buttons.push_back(m_UI->Num1);
+    m_Buttons.push_back(m_UI->Num2);
+    m_Buttons.push_back(m_UI->Num3);
+    m_Buttons.push_back(m_UI->Num4);
+    m_Buttons.push_back(m_UI->Num5);
+    m_Buttons.push_back(m_UI->Num6);
+    m_Buttons.push_back(m_UI->Num7);
+    m_Buttons.push_back(m_UI->Num8);
+    m_Buttons.push_back(m_UI->Num9);
+    m_Buttons.push_back(m_UI->OpDivide);
+    m_Buttons.push_back(m_UI->OpMinus);
+    m_Buttons.push_back(m_UI->OpModulus);
+    m_Buttons.push_back(m_UI->OpMultiply);
+    m_Buttons.push_back(m_UI->OpPlus);
+    m_Buttons.push_back(m_UI->OpSqrt);
+    m_Buttons.push_back(m_UI->Period);
+    m_Buttons.push_back(m_UI->Sign);
+
     QObject::connect(m_UI->Num0, &QPushButton::clicked, [&]()
     {
         m_IsOperation = false;
@@ -84,7 +111,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         if (!m_IsOperation && !m_CurrentNumber.isEmpty())
         {
-            m_Operations.push_back({Action::Plus, std::stod(m_CurrentNumber.toStdString())});
+            m_Operations.push_back({Action::Plus, m_CurrentNumber.toDouble()});
             m_IsOperation = true;
             m_CurrentNumber.clear();
             m_UI->ResultLine->clear();
@@ -99,7 +126,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         if (!m_IsOperation && !m_CurrentNumber.isEmpty())
         {
-            m_Operations.push_back({Action::Minus, std::stod(m_CurrentNumber.toStdString())});
+            m_Operations.push_back({Action::Minus, m_CurrentNumber.toDouble()});
             m_IsOperation = true;
             m_CurrentNumber.clear();
             m_UI->ResultLine->clear();
@@ -114,7 +141,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         if (!m_IsOperation && !m_CurrentNumber.isEmpty())
         {
-            m_Operations.push_back({Action::Divide, std::stod(m_CurrentNumber.toStdString())});
+            m_Operations.push_back({Action::Divide, m_CurrentNumber.toDouble()});
             m_IsOperation = true;
             m_CurrentNumber.clear();
             m_UI->ResultLine->clear();
@@ -129,7 +156,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         if (!m_IsOperation && !m_CurrentNumber.isEmpty())
         {
-            m_Operations.push_back({Action::Multiply, std::stod(m_CurrentNumber.toStdString())});
+            m_Operations.push_back({Action::Multiply, m_CurrentNumber.toDouble()});
             m_IsOperation = true;
             m_CurrentNumber.clear();
             m_UI->ResultLine->clear();
@@ -144,7 +171,7 @@ MainWindow::MainWindow(QWidget *parent)
     {
         if (!m_IsOperation && !m_CurrentNumber.isEmpty())
         {
-            m_Operations.push_back({Action::Modulus, std::stod(m_CurrentNumber.toStdString())});
+            m_Operations.push_back({Action::Modulus, m_CurrentNumber.toDouble()});
             m_IsOperation = true;
             m_CurrentNumber.clear();
             m_UI->ResultLine->clear();
@@ -157,6 +184,9 @@ MainWindow::MainWindow(QWidget *parent)
     });
     QObject::connect(m_UI->Sign, &QPushButton::clicked, [&]()
     {
+        if (m_CurrentNumber.isEmpty())
+            return;
+
         if (m_CurrentNumber.front() == '-')
             m_CurrentNumber.erase(m_CurrentNumber.begin(), m_CurrentNumber.begin() + 1);
         else
@@ -181,7 +211,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
         else
         {
-            m_Operations.push_back({Action::None, std::stod(m_CurrentNumber.toStdString())});
+            m_Operations.push_back({Action::None, m_CurrentNumber.toDouble()});
             m_CurrentNumber.clear();
         }
 
@@ -195,7 +225,7 @@ MainWindow::MainWindow(QWidget *parent)
             {
                 if (m_Operations[i + 1].number == 0.0f)
                 {
-                    m_UI->ResultLine->setText("Invalid");
+                    m_UI->ResultLine->setText("=nan");
                     m_Operations.clear();
                     return;
                 }
@@ -223,7 +253,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
             case Action::Plus:
             {
-                if (m_Operations[i + 1].action == Action::Divide || m_Operations[i + 1].action == Action::Multiply)
+                if (m_Operations[i + 1].action == Action::Divide || m_Operations[i + 1].action == Action::Multiply || m_Operations[i + 1].action == Action::Modulus)
                 {
                     i++;
                     break;
@@ -237,7 +267,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
             case Action::Minus:
             {
-                if (m_Operations[i + 1].action == Action::Divide || m_Operations[i + 1].action == Action::Multiply)
+                if (m_Operations[i + 1].action == Action::Divide || m_Operations[i + 1].action == Action::Multiply || m_Operations[i + 1].action == Action::Modulus)
                 {
                     i++;
                     break;
@@ -296,7 +326,7 @@ MainWindow::MainWindow(QWidget *parent)
         }
         else
         {
-            m_Operations.push_back({Action::None, std::stod(m_CurrentNumber.toStdString())});
+            m_Operations.push_back({Action::None, m_CurrentNumber.toDouble()});
             m_CurrentNumber.clear();
         }
 
@@ -338,7 +368,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
             case Action::Plus:
             {
-                if (m_Operations[i + 1].action == Action::Divide || m_Operations[i + 1].action == Action::Multiply)
+                if (m_Operations[i + 1].action == Action::Divide || m_Operations[i + 1].action == Action::Multiply || m_Operations[i + 1].action == Action::Modulus)
                 {
                     i++;
                     break;
@@ -352,7 +382,7 @@ MainWindow::MainWindow(QWidget *parent)
             }
             case Action::Minus:
             {
-                if (m_Operations[i + 1].action == Action::Divide || m_Operations[i + 1].action == Action::Multiply)
+                if (m_Operations[i + 1].action == Action::Divide || m_Operations[i + 1].action == Action::Multiply || m_Operations[i + 1].action == Action::Modulus)
                 {
                     i++;
                     break;
@@ -398,6 +428,26 @@ MainWindow::MainWindow(QWidget *parent)
         m_IsOperation = false;
         m_CurrentNumber.erase(m_CurrentNumber.end() - 1, m_CurrentNumber.end());
         m_UI->ResultLine->setText(m_CurrentNumber);
+    });
+    QObject::connect(m_UI->Fun, &QPushButton::clicked, [&]()
+    {
+        std::vector<QPushButton*> newButtonPositions = m_Buttons;
+
+        {
+            std::random_device rd;
+            std::mt19937 g(rd());
+            std::shuffle(newButtonPositions.begin(), newButtonPositions.end(), g);
+        }
+
+        for (int i = 0; i < m_Buttons.size(); i++)
+        {
+            QPropertyAnimation* animation = new QPropertyAnimation(m_Buttons[i], "pos");
+            animation->setDuration(500);
+            animation->setStartValue(m_Buttons[i]->pos());
+            animation->setEndValue(newButtonPositions[i]->pos());
+            QObject::connect(animation, &QPropertyAnimation::finished, animation, &QObject::deleteLater);
+            animation->start();
+        }
     });
 }
 
